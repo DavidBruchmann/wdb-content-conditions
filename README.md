@@ -17,6 +17,8 @@ but also other content elements.
 
 @TODO: whats about operators like &&, xor, etc.?  
 @TODO: whats about FlexForm values?
+@TODO: test null-values
+@TODO: update examples below, `tt_content(field, value, type)` example: `[ tt_content("tx_webcan_st_bt_element", 5, "int") ]`
 
 ## Examples:  
 
