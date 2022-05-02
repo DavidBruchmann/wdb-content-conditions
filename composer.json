@@ -1,0 +1,37 @@
+{
+    "name": "wdb/wdb-content-conditions",
+    "type": "typo3-cms-extension",
+    "description": "This extension adds a TypoScript condition to check if content elements with special values on a page exist.",
+    "keywords": [
+        "TYPO3",
+        "extension",
+        "condition",
+        "custom condition",
+        "TypoScript"
+    ],
+    "homepage": "https://github.com/DavidBruchmann",
+    "authors": [
+        {
+            "name": "David Bruchmann",
+            "role": "Developer"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "WDB\\WdbContentConditions\\": "Classes"
+        }
+    },
+    "replace": {
+        "typo3-ter/wdb-contact": "self.version"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "wdb_content_conditions",
+            "cms-package-dir": "{$vendor-dir}/typo3/cms"
+        }
+    }
+}
