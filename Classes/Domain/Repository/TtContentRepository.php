@@ -6,8 +6,10 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 
 use Doctrine\DBAL\DriverManager;
 
+
 class TtContentRepository extends AbstractRepository
 {
+
     public function findByPid(int $pid)
     {
         $table = 'tt_content';
@@ -21,27 +23,16 @@ class TtContentRepository extends AbstractRepository
                 $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
                 $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
             )
+            ->orderBy('sorting')
             ;
         $result = $this->executeQueryBuilderFetchAll($queryBuilder, __METHOD__ . ':' . __LINE__);
-        return $result;
-    }
 
-    public function findByPidAndBtElement(int $pid, int $btElement = 5)
-    {
-        $table = 'tt_content';
-        $dbConn = \Doctrine\DBAL\DriverManager::getConnection($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']);
-        $queryBuilder = $dbConn->createQueryBuilder();
-        $queryBuilder
-            ->select('*')
-            ->from($table)
-            ->where(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('tx_webcan_st_bt_element', $queryBuilder->createNamedParameter($btElement, \PDO::PARAM_INT))
-            )
-            ;
-        $result = $this->executeQueryBuilderFetchAll($queryBuilder, __METHOD__ . ':' . __LINE__);
+        # $uids = [];
+        # foreach ($result as $count => $data) {
+        #    $uids[] = $data['uid'];
+        # }
+        # $this->logger->warning(var_export(['$pid' => $pid, '$uids' => $uids],true));
+
         return $result;
     }
 
@@ -56,8 +47,11 @@ class TtContentRepository extends AbstractRepository
         $dbConn = \Doctrine\DBAL\DriverManager::getConnection($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']);
         $queryBuilder = $dbConn->createQueryBuilder();
         
+        $case = '0';
         if ($fieldValue) {
+            $case = '1';
             if ($pdoType === \PDO::PARAM_NULL) {
+                $case = '1.1';
                 $queryBuilder
                     ->select('*')
                     ->from($table)
@@ -69,39 +63,71 @@ class TtContentRepository extends AbstractRepository
                     )
                     ;
             } else {
-                $queryBuilder
-                    ->select('*')
-                    ->from($table)
-                    ->where(
-                        $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
-                        $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
-                        $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
-                        $queryBuilder->expr()->eq($fieldName, $queryBuilder->createNamedParameter($fieldValue, $pdoType))
-                    )
-                    ;
+                $case = '1.2';
+                if ($pdoType !== null) {
+                    $case = '1.2.1';
+                    $queryBuilder
+                        ->select('*')
+                        ->from($table)
+                        ->where(
+                            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq($fieldName, $queryBuilder->createNamedParameter($fieldValue, $pdoType))
+                        )
+                        ;
+                }
+                else {
+                    $case = '1.2.2';
+                    $queryBuilder
+                        ->select('*')
+                        ->from($table)
+                        ->where(
+                            $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
+                            $queryBuilder->expr()->eq($fieldName, $queryBuilder->createNamedParameter($fieldValue))
+                        )
+                        ;
+                }
             }
+            $result = $this->executeQueryBuilderFetchAll($queryBuilder, __METHOD__ . ':' . __LINE__);
         }
         else {
+            $case = '2';
             $queryBuilder
-                ->select('*')
+                ->select($fieldName)
                 ->from($table)
                 ->where(
                     $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)),
                     $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
                     $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
                     $queryBuilder->expr()->andX(
-                        $queryBuilder->expr()->neq($fieldName, ''),
+                        $queryBuilder->expr()->neq($fieldName, '""'),
                         $queryBuilder->expr()->isNotNull($fieldName)
                     )
                 )
                 ;
+
+            # $result = [];
+            $result = $this->executeQueryBuilderFetchAll($queryBuilder, __METHOD__ . ':' . __LINE__);
+            # foreach ($tmpResult as $value) {
+            #    $result[] = $value[$fieldName];
+            # }
         }
-        $result = $this->executeQueryBuilderFetchAll($queryBuilder, __METHOD__ . ':' . __LINE__);
+
+        # ob_start();
+        # var_dump([$case, func_get_args(), $result, $queryBuilder->getSQL(), $queryBuilder->getParameters()]);
+        # $debug = ob_get_contents();
+        # ob_end_clean();
+        # $this->logger->warning($debug);
+
         return $result;
     }
     
     protected function getPdoType($fieldValue, $valueType)
     {
+        $pdoType = null;
         if (strlen($fieldValue)) {
             if ($valueType !== null) {
                 switch ($valueType) {
@@ -115,16 +141,16 @@ class TtContentRepository extends AbstractRepository
                         break;
                     case 'double':
                     case 'float':
-                        $pdoType = \PDO::PARAM_STRING;
+                        $pdoType = \PDO::PARAM_STR ;
                         break;
                     case 'string':
-                        $pdoType = \PDO::PARAM_STRING;
+                        $pdoType = \PDO::PARAM_STR ;
                         break;
                     case 'null':
                         $pdoType = \PDO::PARAM_NULL;
                         break;
                     default:
-                        $pdoType = \PDO::PARAM_STRING;
+                        $pdoType = \PDO::PARAM_STR ;
                         break;
                 }
             }
@@ -133,10 +159,11 @@ class TtContentRepository extends AbstractRepository
                     $pdoType = \PDO::PARAM_INT;
                 }
                 else {
-                    $pdoType = \PDO::PARAM_STRING;
+                    $pdoType = \PDO::PARAM_STR ;
                 }
             }
         }
+        return $pdoType;
     }
     // [ tt_content("tx_webcan_st_bt_element", 5, "int") ]
 }

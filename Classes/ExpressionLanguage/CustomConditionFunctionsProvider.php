@@ -29,35 +29,52 @@ class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInte
     protected function getContentConditionsFunction(): ExpressionFunction
     {
         return new ExpressionFunction(
-            'tt_content',
+            'ttContent',
             static function () {
                 // Not implemented, we only use the evaluator
             },
             # static function ($arguments, $fieldUid = '') {
-            static function ($arguments, $fieldName, $fieldValue = '', $valueType = 'int') {
+            static function ($arguments, $fieldName, $fieldValue = '', $valueType = '') {
+                /*
+                    `arguments` is an array with these keys:
+                    request            - TYPO3\CMS\Core\ExpressionLanguage\RequestWrapper
+                    applicationContext - string
+                    typo3              - stdClass
+                    tree               - stdClass
+                    frontend           - stdClass
+                    backend            - stdClass
+                    workspace          - stdClass
+                    page               - array: page record
+                */
                 if (!preg_match('/^[a-zA-Z0-9\_]+$/', $fieldName)) {
                     throw new InvalidArgumentException('Invalid fieldName as parameter: [' . $fieldName . ']', 1651409977);
                 }
-                if (!in_array($valueType, [
-                    'str','string',
-                    'int','integer',
-                    'bool','boolean',
-                    'float','double',
-                    'tstamp','timestamp',
-                    'date',
-                    'datetime',
-                    'time',
-                    '',
-                    'null',
-                    null,
-                ])) {
-                    throw new InvalidArgumentException('Invalid valueType as parameter: [' . $valueType . ']', 1651409987);
+                if ($valueType) {
+                    if (!in_array($valueType, [
+                        'str','string',
+                        'int','integer',
+                        'bool','boolean',
+                        'float','double',
+                        'tstamp','timestamp',
+                        'date',
+                        'datetime',
+                        'time',
+                        '',
+                        'null',
+                        null,
+                    ])) {
+                        throw new InvalidArgumentException('Invalid valueType as parameter: [' . $valueType . ']', 1651409987);
+                    }
                 }
                 $pid = $arguments['page']['uid'];
                 $ttContentRepository = GeneralUtility::makeInstance(TtContentRepository::class);
                 // $pageContent = $ttContentRepository->findByPidAndBtElement($pid, intval($fieldValue));
                 $pageContent = $ttContentRepository->findByPidAndFieldValue($pid, $fieldName, $fieldValue, $valueType);
-                return is_array($pageContent) && count($pageContent) > 0 ? true : false;
+                if (!$fieldValue) {
+                    return $pageContent;
+                } else {
+                    return is_array($pageContent) && count($pageContent) > 0 ? true : false;
+                }
             }
         );
     }

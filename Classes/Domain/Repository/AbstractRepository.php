@@ -7,10 +7,38 @@ namespace WDB\WdbContentConditions\Domain\Repository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
-class AbstractRepository
+class AbstractRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
+
+    /**
+     *
+     */
+    protected $logger;
+
+#    /**
+#     * @param \Psr\Log\LoggerInterface $persistenceManager
+#     */
+    public function injectLoggerInterface()
+    {
+        /** @var $logger \TYPO3\CMS\Core\Log\Logger */
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+        // DebuggerUtility::var_dump($this->logger, __METHOD__ . ':' . __LINE__);
+    }
+
+    /**
+     * param \Psr\Log\LoggerInterface;
+     */
+    public function __construct() {
+        # $this->logger = $logger;
+    }
 
     /**
      * Executes queryBuilder and returns resource object.
