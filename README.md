@@ -142,19 +142,3 @@ of a distinct record to verify something.
 String comparisons like in this example might be useful to combine with a 3rd condition of the
 same kind, verifying the field `sys_language_uid` for the record-language:
 **`[tt_content[15]["header"] == "Home" && tt_content[15]["subheader"] == "Welcome"] && tt_content[15]["sys_language_uid"] == 1]`**  
-
-
-    @TODO:
-    **`[ttContent("uid") in [12,13,14]]`**  
-    Checks if the `uid` of a `tt_content` record on the page has one of the values 12, 13 or 14.  
-    In this case only the first parameter is used and the condition-function returns an array of
-    uids of the found content elements on the page.  
-    Note, that the condition still can return false, if the uid is not in the array to check `in [12,13,14]`.
-
-    @TODO:
-    **`[ttContent("header") in ["Home", "Homa"]]`**  
-    This is the same test like above, just with different notation.
-    In this case only the first parameter is used and the condition-function returns an array of
-    header-values of the found content elements on the page.  
-    Note, that the condition still can return false, if the header is not in the array to check
-    `in [["Home", "Homa"]]`.
