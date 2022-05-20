@@ -10,13 +10,13 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Content Conditions',
-    'description' => 'This extension adds a TypoScript condition to check if content elements with special values on a page exist.',
+    'description' => 'This extension adds two different TypoScript conditions to check if content elements with special values on a page exist.',
     'category' => 'be',
     'author' => 'David Bruchmann',
     'author_email' => 'david.bruchmann@gmail.com',
     'state' => 'stable',
     'clearCacheOnLoad' => 1,
-    'version' => '1.0.0',
+    'version' => '1.0.1',
     'autoload' => [
         'psr-4' => [
             'WDB\\WdbContentConditions\\' => 'Classes',

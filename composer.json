@@ -1,7 +1,7 @@
 {
     "name": "wdb/wdb-content-conditions",
     "type": "typo3-cms-extension",
-    "description": "This extension adds a TypoScript condition to check if content elements with special values on a page exist.",
+    "description": "This extension adds two different TypoScript conditions to check if content elements with special values on a page exist.",
     "keywords": [
         "TYPO3",
         "extension",
