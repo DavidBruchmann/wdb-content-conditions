@@ -26,7 +26,7 @@
         }
     },
     "replace": {
-        "typo3-ter/wdb-contact": "self.version"
+        "typo3-ter/wdb_content_conditions": "self.version"
     },
     "extra": {
         "typo3/cms": {
