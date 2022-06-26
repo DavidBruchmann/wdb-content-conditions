@@ -14,7 +14,7 @@ use WDB\WdbContentConditions\Domain\Repository\TtContentRepository;
 #use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 #use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-#use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 
 class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInterface
@@ -22,7 +22,7 @@ class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInte
     public function getFunctions()
     {
         return [
-            $this->getContentConditionsFunction(), // tx_webcan_st_bt_element
+            $this->getContentConditionsFunction(),
         ];
     }
 
@@ -33,19 +33,19 @@ class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInte
             static function () {
                 // Not implemented, we only use the evaluator
             },
-            # static function ($arguments, $fieldUid = '') {
             static function ($arguments, $fieldName, $fieldValue = '', $valueType = '') {
-                /*
-                    `arguments` is an array with these keys:
-                    request            - TYPO3\CMS\Core\ExpressionLanguage\RequestWrapper
-                    applicationContext - string
-                    typo3              - stdClass
-                    tree               - stdClass
-                    frontend           - stdClass
-                    backend            - stdClass
-                    workspace          - stdClass
-                    page               - array: page record
-                */
+
+                // `arguments` is an array with these keys:
+                // ----------------------------------------
+                // request            - TYPO3\CMS\Core\ExpressionLanguage\RequestWrapper
+                // applicationContext - string
+                // typo3              - stdClass
+                // tree               - stdClass
+                // frontend           - stdClass
+                // backend            - stdClass
+                // workspace          - stdClass
+                // page               - array: page record
+
                 if (!preg_match('/^[a-zA-Z0-9\_]+$/', $fieldName)) {
                     throw new InvalidArgumentException('Invalid fieldName as parameter: [' . $fieldName . ']', 1651409977);
                 }
@@ -68,7 +68,6 @@ class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInte
                 }
                 $pid = $arguments['page']['uid'];
                 $ttContentRepository = GeneralUtility::makeInstance(TtContentRepository::class);
-                // $pageContent = $ttContentRepository->findByPidAndBtElement($pid, intval($fieldValue));
                 $pageContent = $ttContentRepository->findByPidAndFieldValue($pid, $fieldName, $fieldValue, $valueType);
                 if (!$fieldValue) {
                     return $pageContent;

@@ -16,7 +16,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'david.bruchmann@gmail.com',
     'state' => 'stable',
     'clearCacheOnLoad' => 1,
-    'version' => '1.0.3',
+    'version' => '1.0.4',
     'autoload' => [
         'psr-4' => [
             'WDB\\WdbContentConditions\\' => 'Classes',
@@ -24,7 +24,7 @@ $EM_CONF[$_EXTKEY] = [
     ],
     'constraints' => [
         'depends' => [
-            'typo3' => '11.5.8-11.5.99',
+            'typo3' => '10.4.18-11.5.99',
         ],
         'conflicts' => [],
         'suggests' => [],
